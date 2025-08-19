@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Scientific Calculator</title>
+  <link rel="stylesheet" href="scientific.css" />
+</head>
+<body>
+  <header>
+    <h1>Scientific Calculator</h1>
+  </header>
+
+  <div class="theme-toggle">
+    <input type="checkbox" id="themeSwitch">
+    <label for="themeSwitch" class="toggle"></label>
+  </div>
+
+
+  <main>
+    <section class="calculator container">
+      <div class="display-screen" id="display">0</div>
+
+      <div class="button-grid">
+        <!-- Scientific Row -->
+        <button class="btn function" data-action="sin">sin</button>
+        <button class="btn function" data-action="cos">cos</button>
+        <button class="btn function" data-action="tan">tan</button>
+        <button class="btn function" data-action="sqrt">√</button>
+
+        <button class="btn function" data-action="log">log</button>
+        <button class="btn function" data-action="ln">ln</button>
+        <button class="btn function" data-action="pow">x<sup>y</sup></button>
+        <button class="btn function" data-action="exp">e<sup>x</sup></button>
+
+        <!-- Normal Row 1 -->
+        <button class="btn function" data-action="clear">AC</button>
+        <button class="btn function" data-action="plus-minus">±</button>
+        <button class="btn function" data-action="percent">%</button>
+        <button class="btn operator" data-action="divide">÷</button>
+
+        <!-- Row 2 -->
+        <button class="btn number" data-value="7">7</button>
+        <button class="btn number" data-value="8">8</button>
+        <button class="btn number" data-value="9">9</button>
+        <button class="btn operator" data-action="multiply">×</button>
+
+        <!-- Row 3 -->
+        <button class="btn number" data-value="4">4</button>
+        <button class="btn number" data-value="5">5</button>
+        <button class="btn number" data-value="6">6</button>
+        <button class="btn operator" data-action="subtract">−</button>
+
+        <!-- Row 4 -->
+        <button class="btn number" data-value="1">1</button>
+        <button class="btn number" data-value="2">2</button>
+        <button class="btn number" data-value="3">3</button>
+        <button class="btn operator" data-action="add">+</button>
+
+        <!-- Row 5 -->
+        <button class="btn number zero" data-value="0">0</button>
+        <button class="btn decimal" data-value=".">.</button>
+        <button class="btn equals" data-action="equals">=</button>
+      </div>
+
+      
+    </section>
+
+    <section class="history container">
+      <h3>History</h3>
+      <ul id="historyList"></ul>
+      <button id="clearHistory">Clear History</button>
+    </section>
+
+    <div class="mode-switch">
+        <button onclick="location.href='index.html'">Switch to Basic Calculator</button>
+    </div>
+    
+  </main>
+
+  <footer>
+    <p>&copy; 2025 Calculator Project by Lidya</p>
+  </footer>
+
+  <script src="scientific.js"></script>
+</body>
+</html>
