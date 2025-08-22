@@ -9,12 +9,13 @@
 <body>
     <header>
         <h1>Basic Calculator</h1>
+        <div class="theme-toggle">
+            <input type="checkbox" id="themeSwitch">
+            <label for="themeSwitch" class="toggle"></label>
+        </div>
     </header>
 
-    <div class="theme-toggle">
-        <input type="checkbox" id="themeSwitch">
-        <label for="themeSwitch" class="toggle"></label>
-    </div>
+    
 
 
     <main>
@@ -58,7 +59,9 @@
 
         <section class="history container">
             <h3>History</h3>
-            <ul id="historyList"></ul>
+            <div class="display-screen">
+               <ul id="historyList"></ul>
+            </div>
             <button id="clearHistory">Clear History</button>
         </section>
 
@@ -70,7 +73,7 @@
     </main>
 
     <footer>
-        <p>&copy; 2025 Calculator Project by Lidya</p>
+        <p>&copy; 2025 Calculator Project - All rights reserved</p>
     </footer>
 
     <script src="script.js"></script>

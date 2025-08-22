@@ -4,21 +4,21 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Scientific Calculator</title>
-  <link rel="stylesheet" href="scientific.css" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <header>
     <h1>Scientific Calculator</h1>
+    <div class="theme-toggle">
+      <input type="checkbox" id="themeSwitch">
+      <label for="themeSwitch" class="toggle"></label>
+    </div>
   </header>
 
-  <div class="theme-toggle">
-    <input type="checkbox" id="themeSwitch">
-    <label for="themeSwitch" class="toggle"></label>
-  </div>
-
+  
 
   <main>
-    <section class="calculator container">
+    <section class="calculator container calculator--scientific">
       <div class="display-screen" id="display">0</div>
 
       <div class="button-grid">
@@ -68,7 +68,9 @@
 
     <section class="history container">
       <h3>History</h3>
-      <ul id="historyList"></ul>
+      <div class="display-screen">
+         <ul id="historyList"></ul>
+      </div>
       <button id="clearHistory">Clear History</button>
     </section>
 
@@ -79,7 +81,7 @@
   </main>
 
   <footer>
-    <p>&copy; 2025 Calculator Project by Lidya</p>
+    <p>&copy; 2025 Calculator Project - All rights reserved</p>
   </footer>
 
   <script src="scientific.js"></script>

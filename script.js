@@ -4,6 +4,8 @@ let firstOperand = null;
 let currentOperation = null;
 let waitingForSecondNumber = false;
 
+let shouldResetDisplay = false; // Flag
+
 // hold the display element
 const display = document.getElementById('display');
 
@@ -14,11 +16,12 @@ numberButtons.forEach(function(button){
         // خذي الرقم الموجود داخل data-value
         const number = button.dataset.value;
 
-        if(display.textContent === '0' || waitingForSecondNumber){
-            display.textContent = number;// you can use updateDisplay(number) if you have that function
-            waitingForSecondNumber = false; // Reset the flag after entering the first number
+        if (display.textContent === '0' || waitingForSecondNumber || shouldResetDisplay) {
+          display.textContent = number;
+          waitingForSecondNumber = false;
+          shouldResetDisplay = false;      
         } else {
-            display.textContent += number;
+          display.textContent += number;
         }
     });
 });
@@ -32,6 +35,7 @@ clearButton.addEventListener("click", function() {
     firstOperand = null;
     currentOperation = null;
     waitingForSecondNumber = false;
+    shouldResetDisplay = false;
 });
 
 
@@ -39,9 +43,16 @@ clearButton.addEventListener("click", function() {
 // dot button
 const dotButton = document.querySelector(".decimal");
 dotButton.addEventListener("click", function() {
-    if(!display.textContent.includes('.')) {    
-        display.textContent += '.';               // you can also use updateDisplay(display.textContent + '.'); if you have that function
+    if (shouldResetDisplay || waitingForSecondNumber) {
+      display.textContent = '0.';
+      shouldResetDisplay = false;
+      waitingForSecondNumber = false;
+      return;
     }
+    if (!display.textContent.includes('.')) {
+      display.textContent += '.';
+    }
+
 });
 
 
@@ -84,6 +95,11 @@ equalsButton.addEventListener("click",function() {
         case "divide":
             if (secondOperandNumber === 0) {
                 console.log("Error");
+                display.textContent = 'Error';
+                firstOperand = null;
+                currentOperation = null;
+                waitingForSecondNumber = false;
+                shouldResetDisplay = true;
                 return;
             }
             result = firstOperandNumber / secondOperandNumber;
@@ -94,7 +110,10 @@ equalsButton.addEventListener("click",function() {
     }
 
     display.textContent = result;
-    addToHistory(`${firstOperandNumber} ${currentOperation} ${secondOperandNumber}`, result); // Save the operation to history
+    shouldResetDisplay = true;   
+
+    const map = { add: '+', subtract: '−', multiply: '×', divide: '÷' };
+    addToHistory(`${firstOperandNumber} ${map[currentOperation] || currentOperation} ${secondOperandNumber}`, result);  // Save the operation to history
     // Reset the calculator state
     firstOperand = null;
     currentOperation = null;
@@ -183,7 +202,7 @@ const themeSwitch = document.getElementById("themeSwitch");
 themeSwitch.addEventListener("change", () => {
   document.body.classList.toggle("dark-mode", themeSwitch.checked);
 
-  // نخزن الخيار بالـ localStorage عشان يتذكره المتصفح
+  // نخزن الخيار بالـ localStorage مشان يتذكره المتصفح
   if (themeSwitch.checked) {
     localStorage.setItem("theme", "dark");
   } else {

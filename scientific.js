@@ -6,24 +6,33 @@ let currentFunction = null;
 let waitingForFunctionInput = false;  
 let isDegreeMode = true;              
 
+let shouldResetDisplay = false; // FLag
+
 // define the display element
 const display = document.getElementById('display');
-const modeToggle = document.getElementById('mode-toggle');
+
 
 // update display function
 function updateDisplay(value) {
-    if (isNaN(value)) {
-        display.textContent = value;
-    } else {
-        const str = value.toString();
-        if (str.length > 12) {
-            display.textContent = Number(value).toExponential(6);
-        } else {
-            display.textContent = str;
-        }
-    }
-}
-
+   // أخطاء أو لانهاية
+   if (value === 'Error' || value === undefined || value === null || !isFinite(Number(value))) {
+     display.textContent = 'Error';
+     return;
+   }
+   let n = Number(value);
+   const EPS = 1e-12;
+   // أرقام صغيرة جدًا بعتبرها صفر
+   if (Math.abs(n) < EPS) n = 0;
+   // لو شبه عدد صحيح اعرضه كعدد صحيح
+   if (Math.abs(n - Math.round(n)) < 1e-10) {
+     display.textContent = String(Math.round(n));
+     return;
+   }
+   // اعرضلي حتى 10 منازل واحذف الأصفار اللاحقة
+   let s = n.toFixed(10).replace(/\.?0+$/, '');
+   if (s === '-0') s = '0';
+   display.textContent = s;
+ }
 
 function resetCalculator() {
     updateDisplay('0');
@@ -32,6 +41,7 @@ function resetCalculator() {
     waitingForSecondNumber = false;
     currentFunction = null;
     waitingForFunctionInput = false;
+    shouldResetDisplay = false;
 }
 
 // number buttons
@@ -40,25 +50,54 @@ numberButtons.forEach(function(button) {
     button.addEventListener("click", function() {
         const number = button.dataset.value;
 
-        if (display.textContent === '0' || waitingForSecondNumber) {
+        if (display.textContent === 'Error') {
             updateDisplay(number);
             waitingForSecondNumber = false;
-        } else if (waitingForFunctionInput) {
-            display.textContent += number;
+            shouldResetDisplay = false;
+            waitingForFunctionInput = false;
+            currentFunction = null;
+            return;
+        }
+
+        if (waitingForFunctionInput) {
+        display.textContent += number;
+        return;
+        }
+
+        if (display.textContent === '0' || waitingForSecondNumber || shouldResetDisplay) {
+        updateDisplay(number);
+        waitingForSecondNumber = false;
+        shouldResetDisplay = false;
         } else {
-            updateDisplay(display.textContent + number);       // you can also use display.textContent += number; 
+        updateDisplay(display.textContent + number);
         }
     });
 });
 
 // dot button
 const dotButton = document.querySelector(".decimal");
-dotButton.addEventListener("click", function() {
-    if (!display.textContent.includes('.')) {
-        updateDisplay(display.textContent + '.');             // you can also use display.textContent += '.'; if you have that function
-    }
-});
+if (dotButton) {
+  dotButton.addEventListener('click', () => {
+        if (waitingForFunctionInput) {
+        // نضيف نقطة داخل الدالة (من غير تكرار النقطة المتتالية)
+        if (!display.textContent.endsWith('.')) {
+            display.textContent += '.';
+        }
+        return;
+        }
 
+        if (shouldResetDisplay || waitingForSecondNumber) {
+            updateDisplay('0.');
+            shouldResetDisplay = false;
+            waitingForSecondNumber = false;
+            return;
+        }
+
+        if (!display.textContent.includes('.')) {
+        updateDisplay(display.textContent + '.');
+        }
+    });
+}
 // AC button
 const clearButton = document.querySelector('.function[data-action="clear"]');
 clearButton.addEventListener("click", resetCalculator);
@@ -73,12 +112,28 @@ operatorButtons.forEach(button => {
     });
 });
 
+// yardımcı fonksiyon equals için
+function parseInsideArg(txt){
+  const open = txt.indexOf('(');
+  const close = txt.indexOf(')', open + 1);
+  const raw = (open > -1) ? txt.slice(open + 1, (close > -1 ? close : undefined)) : txt;
+  return parseFloat(raw.trim()); // يدعم السالب والـ e تلقائياً
+}
+
 // equals button
 const equalsButton = document.querySelector('[data-action="equals"]');
 equalsButton.addEventListener("click", function() {
     if (currentFunction) {
-        const inside = parseFloat(display.textContent.replace(/[^0-9.]/g, ""));
-       
+        const inside = parseInsideArg(display.textContent);
+       //بدل القيم الغريبة برجعلي Error
+        if (isNaN(inside)) {
+            updateDisplay('Error');
+            currentFunction = null;
+            waitingForFunctionInput = false;
+            shouldResetDisplay = true;
+            return;
+        }
+
         let result;
         switch (currentFunction) {
             case "sin": {
@@ -108,9 +163,16 @@ equalsButton.addEventListener("click", function() {
                 } else {
                     angle = inside;
                 }
-                result = Math.tan(angle);
+
+                const c = Math.cos(angle);
+                if (Math.abs(c) < 1e-12) {
+                    result = "Error"; // tan(90° + k*180) غير معرّفة
+                } else {
+                    result = Math.tan(angle);
+                }
                 break;
             }
+
             case "√":
                 if (inside < 0) {
                     result = "Error";
@@ -137,10 +199,16 @@ equalsButton.addEventListener("click", function() {
                 break;
         }
 
-        display.textContent = currentFunction + "(" + inside + ") = " + result;
-        addToHistory(`${currentFunction}(${inside})`, result); // Save the operation to history
+        if (typeof result === 'number' && Math.abs(result) < 1e-12) result = 0;
+        updateDisplay(result);
+        // Save the operation to history
+        if (result !== "Error") {
+            addToHistory(`${currentFunction}(${inside})`, result);
+        }
+
         currentFunction = null;
         waitingForFunctionInput = false;
+        shouldResetDisplay = true;
         return;
     }
 
@@ -163,6 +231,7 @@ equalsButton.addEventListener("click", function() {
         case "divide":
             if (secondOperandNumber === 0) {
                 updateDisplay("Error");
+                shouldResetDisplay = true; 
                 return;
             }
             result = firstOperandNumber / secondOperandNumber;
@@ -172,10 +241,15 @@ equalsButton.addEventListener("click", function() {
             break;
     }
 
+    if (typeof result === 'number' && Math.abs(result) < 1e-12) result = 0;
     updateDisplay(result);
+    const map = { add: '+', subtract: '−', multiply: '×', divide: '÷' };
+    addToHistory(`${firstOperandNumber} ${map[currentOperation] || currentOperation} ${secondOperandNumber}`, result); // Save the operation to history
+
     firstOperand = null;
     currentOperation = null;
     waitingForSecondNumber = false;
+    shouldResetDisplay = true;
 });
 
 // ± change sign button
@@ -278,7 +352,7 @@ const themeSwitch = document.getElementById("themeSwitch");
 themeSwitch.addEventListener("change", () => {
   document.body.classList.toggle("dark-mode", themeSwitch.checked);
 
-  // نخزن الخيار بالـ localStorage عشان يتذكره المتصفح
+  // نخزن الخيار بالـ localStorage مشان يتذكره المتصفح
   if (themeSwitch.checked) {
     localStorage.setItem("theme", "dark");
   } else {
