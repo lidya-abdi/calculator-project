@@ -6,7 +6,7 @@ You can check the live demo here 👉 [Calculator App Online](https://calculator
 ## Features
 - Basic arithmetic operations (+, -, ×, ÷)
 - Scientific calculator functions (square root, power, percentage, etc.)
-- Clear and reset functions
+- Clear functions
 - Responsive design with clean UI
 - Dark/Light mode 
 
@@ -14,3 +14,4 @@ You can check the live demo here 👉 [Calculator App Online](https://calculator
 - HTML
 - CSS
 - JavaScript
+
